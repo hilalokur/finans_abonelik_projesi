@@ -35,6 +35,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   bool yukleniyor = true;
   double toplamTutar = 0.0;
   Map<String, dynamic> dovizKurlari = {};
+  Map<String, double> kategoriDagilimi = {};
 
   @override
   void initState() {
@@ -49,9 +50,26 @@ class _AnaSayfaState extends State<AnaSayfa> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['durum'] == 'Başarılı') {
+          List gelenListe = data['veri'];
+          double toplam = 0.0;
+          Map<String, double> dagilim = {};
+
+          for (var item in gelenListe) {
+            double ucret = (item['Ucret'] as num).toDouble();
+            String kategori = item['Kategori'] ?? 'Diğer';
+            toplam += ucret;
+
+            if (dagilim.containsKey(kategori)) {
+              dagilim[kategori] = dagilim[kategori]! + ucret;
+            } else {
+              dagilim[kategori] = ucret;
+            }
+          }
+
           setState(() {
-            abonelikler = data['veri'];
-            toplamTutar = abonelikler.fold(0.0, (sum, item) => sum + (item['Ucret'] as num).toDouble());
+            abonelikler = gelenListe;
+            toplamTutar = toplam;
+            kategoriDagilimi = dagilim;
             yukleniyor = false;
           });
         }
@@ -77,6 +95,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
     }
   }
 
+  void yeniAbonelikSayfasiniAc() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => YeniAbonelikSayfasi(onEklendi: verileriGetir)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +109,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
         title: const Text('Abonelik & Finans Yönetimi'),
         centerTitle: true,
         backgroundColor: Colors.indigo,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 28),
+            onPressed: yeniAbonelikSayfasiniAc,
+            tooltip: 'Yeni Abonelik Ekle',
+          ),
+        ],
       ),
       body: yukleniyor
           ? const Center(child: CircularProgressIndicator())
@@ -92,6 +124,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Özet Kartı
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -130,6 +163,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Döviz Kurları Özeti
                   if (dovizKurlari.isNotEmpty)
                     Card(
                       elevation: 2,
@@ -139,20 +174,73 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text('USD/TRY: ${dovizKurlari['TRY']?.toStringAsFixed(2) ?? 'N/A'}'),
-                            Text('EUR/TRY: ${dovizKurlari['EUR']?.toStringAsFixed(2) ?? 'N/A'}'),
+                            Text('USD/TRY: ${dovizKurlari['TRY']?.toStringAsFixed(2) ?? 'N/A'}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                            Text('EUR/TRY: ${dovizKurlari['EUR']?.toStringAsFixed(2) ?? 'N/A'}', style: const TextStyle(fontWeight: FontWeight.w500)),
                           ],
                         ),
                       ),
                     ),
                   const SizedBox(height: 20),
+
+                  // Kategori Bazlı Harcama İstatistik Kartları (Grafiksel Görünüm)
+                  const Text(
+                    'Kategori Bazlı Harcama Dağılımı',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo),
+                  ),
+                  const SizedBox(height: 10),
+                  kategoriDagilimi.isEmpty
+                      ? const Text('Henüz harcama verisi yok.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: kategoriDagilimi.keys.length,
+                          itemBuilder: (context, index) {
+                            String kategori = kategoriDagilimi.keys.elementAt(index);
+                            double tutar = kategoriDagilimi[kategori]!;
+                            double yuzde = toplamTutar > 0 ? (tutar / toplamTutar) : 0.0;
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(kategori, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        Text('${tutar.toStringAsFixed(2)} TL (${(yuzde * 100).toStringAsFixed(1)}%)',
+                                            style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    LinearProgressIndicator(
+                                      value: yuzde,
+                                      backgroundColor: Colors.grey[200],
+                                      color: Colors.indigo,
+                                      minHeight: 8,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                  const SizedBox(height: 20),
+
                   const Text(
                     'Aktif Aboneliklerim',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo),
                   ),
                   const SizedBox(height: 10),
+
+                  // Abonelik Listesi
                   abonelikler.isEmpty
-                      ? const Center(child: Text('Henüz eklenmiş abonelik yok.'))
+                      ? const Center(child: Padding(
+                          padding: EdgeInsets.all(30.0),
+                          child: Text('Henüz eklenmiş abonelik yok. Sağ üstteki + butonundan ekleyebilirsin!'),
+                        ))
                       : ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -181,11 +269,130 @@ class _AnaSayfaState extends State<AnaSayfa> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          verileriGetir();
-        },
+        onPressed: yeniAbonelikSayfasiniAc,
         backgroundColor: Colors.indigo,
-        child: const Icon(Icons.refresh),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class YeniAbonelikSayfasi extends StatefulWidget {
+  final VoidCallback onEklendi;
+  YeniAbonelikSayfasi({Key? key, required this.onEklendi}) : super(key: key);
+
+  @override
+  _YeniAbonelikSayfasiState createState() => _YeniAbonelikSayfasiState();
+}
+
+class _YeniAbonelikSayfasiState extends State<YeniAbonelikSayfasi> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _adController = TextEditingController();
+  final TextEditingController _ucretController = TextEditingController();
+  String _kategori = 'Eğlence';
+  String _paraBirimi = 'TL';
+  String _periyod = 'Aylık';
+
+  bool _yukleniyor = false;
+
+  Future<void> abonelikEkle() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() { _yukleniyor = true; });
+      try {
+        final response = await http.post(
+          Uri.parse('http://127.0.0.1:8000/abonelik-ekle'),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({
+            "AbonelikAdi": _adController.text,
+            "Kategori": _kategori,
+            "Ucret": double.parse(_ucretController.text),
+            "ParaBirimi": _paraBirimi,
+            "YenilemePeriyodu": _periyod,
+          }),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          widget.onEklendi();
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Abonelik eklenirken bir hata oluştu!')),
+          );
+        }
+      } catch (e) {
+        print("Hata: $e");
+      } finally {
+        setState(() { _yukleniyor = false; });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Yeni Abonelik Ekle'),
+        backgroundColor: Colors.indigo,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: _adController,
+                decoration: const InputDecoration(labelText: 'Abonelik Adı (örn: Netflix, Spotify)', border: OutlineInputBorder()),
+                validator: (value) => value!.isEmpty ? 'Lütfen bir ad girin' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _ucretController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Ücret', border: OutlineInputBorder()),
+                validator: (value) => value!.isEmpty ? 'Lütfen bir ücret girin' : null,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _kategori,
+                decoration: const InputDecoration(labelText: 'Kategori', border: OutlineInputBorder()),
+                items: <String>['Eğlence', 'Yazılım', 'Bulut', 'Fatura', 'Diğer']
+                    .map((String label) => DropdownMenuItem<String>(value: label, child: Text(label)))
+                    .toList(),
+                onChanged: (String? val) { setState(() { _kategori = val!; }); },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _paraBirimi,
+                decoration: const InputDecoration(labelText: 'Para Birimi', border: OutlineInputBorder()),
+                items: <String>['TL', 'USD', 'EUR']
+                    .map((String label) => DropdownMenuItem<String>(value: label, child: Text(label)))
+                    .toList(),
+                onChanged: (String? val) { setState(() { _paraBirimi = val!; }); },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _periyod,
+                decoration: const InputDecoration(labelText: 'Yenileme Periyodu', border: OutlineInputBorder()),
+                items: <String>['Aylık', 'Yıllık']
+                    .map((String label) => DropdownMenuItem<String>(value: label, child: Text(label)))
+                    .toList(),
+                onChanged: (String? val) { setState(() { _periyod = val!; }); },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                  onPressed: _yukleniyor ? null : abonelikEkle,
+                  child: _yukleniyor
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Aboneliği Kaydet', style: TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
