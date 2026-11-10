@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(const FinansAbonelikApp());
@@ -10,307 +12,180 @@ class FinansAbonelikApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Abonelik ve Finans Takip',
       debugShowCheckedModeBanner: false,
+      title: 'Finans Abonelik Takip',
       theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
-          brightness: Brightness.dark,
-        ),
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        primarySwatch: Colors.indigo,
+        scaffoldBackgroundColor: Colors.grey[100],
       ),
-      home: const AnaEkran(),
+      home: AnaSayfa(),
     );
   }
 }
 
-class AnaEkran extends StatefulWidget {
-  const AnaEkran({Key? key}) : super(key: key);
+class AnaSayfa extends StatefulWidget {
+  AnaSayfa({Key? key}) : super(key: key);
 
   @override
-  State<AnaEkran> createState() => _AnaEkranState();
+  _AnaSayfaState createState() => _AnaSayfaState();
 }
 
-class _AnaEkranState extends State<AnaEkran> {
-  // Aboneliklerimizi tutacağımız liste
-  final List<Map<String, dynamic>> _abonelikler = [
-    {'isim': 'Netflix', 'kategori': 'Video Akışı', 'tutar': '229.99 TL', 'renk': Colors.red},
-    {'isim': 'Spotify', 'kategori': 'Müzik', 'tutar': '59.99 TL', 'renk': Colors.green},
-    {'isim': 'ChatGPT Plus', 'kategori': 'Yapay Zeka', 'tutar': '650.00 TL', 'renk': Colors.teal},
-  ];
+class _AnaSayfaState extends State<AnaSayfa> {
+  List abonelikler = [];
+  bool yukleniyor = true;
+  double toplamTutar = 0.0;
+  Map<String, dynamic> dovizKurlari = {};
 
-  // Text Controller'lar ile formdaki girdileri alacağız
-  final TextEditingController _isimController = TextEditingController();
-  final TextEditingController _tutarController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    verileriGetir();
+    dovizKurlariniGetir();
+  }
 
-  void _abonelikEkleModalGoster(BuildContext context) {
-    _isimController.clear();
-    _tutarController.clear();
+  Future<void> verileriGetir() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/abonelikleri-getir'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['durum'] == 'Başarılı') {
+          setState(() {
+            abonelikler = data['veri'];
+            toplamTutar = abonelikler.fold(0.0, (sum, item) => sum + (item['Ucret'] as num).toDouble());
+            yukleniyor = false;
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        yukleniyor = false;
+      });
+      print("Bağlantı hatası: $e");
+    }
+  }
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20,
-            right: 20,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Yeni Abonelik Ekle',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _isimController,
-                decoration: InputDecoration(
-                  labelText: 'Servis Adı (Örn: YouTube Premium)',
-                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                  filled: true,
-                  fillColor: const Color(0xFF0F172A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _tutarController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Tutar (Örn: 800)',
-                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                  filled: true,
-                  fillColor: const Color(0xFF0F172A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_isimController.text.isNotEmpty && _tutarController.text.isNotEmpty) {
-                      setState(() {
-                        _abonelikler.add({
-                          'isim': _isimController.text,
-                          'kategori': 'Özel Abonelik',
-                          'tutar': '${_tutarController.text} TL',
-                          'renk': Colors.purpleAccent,
-                        });
-                      });
-                      Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Kaydet',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        );
-      },
-    );
+  Future<void> dovizKurlariniGetir() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/doviz-kurlari'));
+      if (response.statusCode == 200) {
+        setState(() {
+          dovizKurlari = json.decode(response.body);
+        });
+      }
+    } catch (e) {
+      print("Döviz çekme hatası: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Aboneliklerim',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-        ],
+        title: const Text('Abonelik & Finans Yönetimi'),
+        centerTitle: true,
+        backgroundColor: Colors.indigo,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6366F1), Color(0xFFA855F7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Column(
+      body: yukleniyor
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Toplam Aylık Gider',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    '1,450.00 TL',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.indigo, Colors.deepPurple],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.indigo.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Toplam Aylık Abonelik Gideri',
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${toplamTutar.toStringAsFixed(2)} TL',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  if (dovizKurlari.isNotEmpty)
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text('USD/TRY: ${dovizKurlari['TRY']?.toStringAsFixed(2) ?? 'N/A'}'),
+                            Text('EUR/TRY: ${dovizKurlari['EUR']?.toStringAsFixed(2) ?? 'N/A'}'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Aktif Aboneliklerim',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo),
+                  ),
+                  const SizedBox(height: 10),
+                  abonelikler.isEmpty
+                      ? const Center(child: Text('Henüz eklenmiş abonelik yok.'))
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: abonelikler.length,
+                          itemBuilder: (context, index) {
+                            var item = abonelikler[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.indigo.withOpacity(0.1),
+                                  child: const Icon(Icons.subscriptions, color: Colors.indigo),
+                                ),
+                                title: Text(item['AbonelikAdi'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text('Kategori: ${item['Kategori']} • ${item['YenilemePeriyodu']}'),
+                                trailing: Text(
+                                  '${item['Ucret']} ${item['ParaBirimi']}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 16),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Aktif Abonelikler',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _abonelikler.length,
-                itemBuilder: (context, index) {
-                  final abonelik = _abonelikler[index];
-                  return AbonelikKarti(
-                    isim: abonelik['isim'],
-                    kategori: abonelik['kategori'],
-                    tutar: abonelik['tutar'],
-                    renk: abonelik['renk'],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _abonelikEkleModalGoster(context),
-        backgroundColor: const Color(0xFF6366F1),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Abonelik Ekle', style: TextStyle(color: Colors.white)),
-      ),
-    );
-  }
-}
-
-class AbonelikKarti extends StatelessWidget {
-  final String isim;
-  final String kategori;
-  final String tutar;
-  final Color renk;
-
-  const AbonelikKarti({
-    Key? key,
-    required this.isim,
-    required this.kategori,
-    required this.tutar,
-    required this.renk,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: renk.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.subscriptions, color: renk),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isim,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    kategori,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Text(
-            tutar,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          verileriGetir();
+        },
+        backgroundColor: Colors.indigo,
+        child: const Icon(Icons.refresh),
       ),
     );
   }
