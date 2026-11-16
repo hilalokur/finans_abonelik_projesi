@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../services/app_preferences.dart';
+
 class AppColors {
   static const background = Color(0xFF09051B);
   static const surface = Color(0xDD17102B);
   static const surfaceSolid = Color(0xFF17102B);
   static const surfaceAlt = Color(0x668B5CF6);
   static const primary = Color(0xFF8B5CF6);
-  static const primaryLight = Color(0xFFC4B5FD);
+
+  /// Kullanıcının seçtiği vurgu rengi (varsayılan lavanta #C4B5FD).
+  static Color get primaryLight => AppPreferences.instance.accentColor;
   static const lavender = Color(0xFFE9D5FF);
   static const text = Color(0xFFFFFFFF);
   static const muted = Color(0xFFB8B2CC);
@@ -37,7 +41,7 @@ class AppTheme {
         onSecondary: AppColors.background,
         onSurface: AppColors.text,
       ),
-      iconTheme: const IconThemeData(color: AppColors.primaryLight),
+      iconTheme: IconThemeData(color: accent),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
@@ -51,7 +55,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: Color(0x99C4B5FD)),
+          borderSide: BorderSide(color: accent.withValues(alpha: .6)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
@@ -67,8 +71,8 @@ class AppTheme {
         ),
         hintStyle: const TextStyle(color: AppColors.muted),
         labelStyle: const TextStyle(color: AppColors.muted),
-        prefixIconColor: AppColors.primaryLight,
-        suffixIconColor: AppColors.primaryLight,
+        prefixIconColor: accent,
+        suffixIconColor: accent,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -93,7 +97,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.lavender,
-          side: const BorderSide(color: Color(0x99C4B5FD)),
+          side: BorderSide(color: accent.withValues(alpha: .6)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26),
           ),
@@ -103,15 +107,35 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(foregroundColor: AppColors.lavender),
       ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: accent),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? accent : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? accent.withValues(alpha: .45)
+              : null,
+        ),
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: accent,
+        thumbColor: accent,
+        inactiveTrackColor: accent.withValues(alpha: .25),
+      ),
+      chipTheme: ChipThemeData(
+        selectedColor: accent.withValues(alpha: .28),
+        side: BorderSide(color: accent.withValues(alpha: .45)),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.text,
         elevation: 0,
         centerTitle: false,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.surfaceSolid,
-        selectedItemColor: AppColors.primaryLight,
+        selectedItemColor: accent,
         unselectedItemColor: AppColors.muted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,

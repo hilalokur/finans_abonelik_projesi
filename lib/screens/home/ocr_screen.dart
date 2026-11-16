@@ -48,7 +48,7 @@ class _OcrScreenState extends State<OcrScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.camera_alt_outlined,
                   color: AppColors.primaryLight,
                 ),
@@ -56,7 +56,7 @@ class _OcrScreenState extends State<OcrScreen> {
                 onTap: () => Navigator.pop(context, _ImageChoice.camera),
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.photo_library_outlined,
                   color: AppColors.primaryLight,
                 ),
@@ -64,7 +64,7 @@ class _OcrScreenState extends State<OcrScreen> {
                 onTap: () => Navigator.pop(context, _ImageChoice.gallery),
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.folder_open_rounded,
                   color: AppColors.primaryLight,
                 ),
@@ -276,7 +276,7 @@ class _OcrScreenState extends State<OcrScreen> {
                     width: 68,
                     height: 68,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [AppColors.primary, AppColors.primaryLight],
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -357,7 +357,7 @@ class _OcrScreenState extends State<OcrScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.event_outlined,
                           size: 19,
                           color: AppColors.primaryLight,

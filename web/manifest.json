@@ -1,11 +1,11 @@
 {
-    "name": "finans_abonelik_projesi",
-    "short_name": "finans_abonelik_projesi",
+    "name": "Abonelik ve Finans Takip Sistemi",
+    "short_name": "Abonelik Takip",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1E1238",
+    "theme_color": "#1E1238",
+    "description": "Tüm aboneliklerin ve düzenli giderlerin tek bir yerde.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

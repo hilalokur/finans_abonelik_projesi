@@ -195,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text(
+                      child: Text(
                         'Giriş yap',
                         style: TextStyle(color: AppColors.primaryLight),
                       ),

@@ -97,7 +97,7 @@ class SubscriptionServicePicker extends StatelessWidget {
                 ServiceBrandIcon(serviceName: selectedName!, size: 42),
                 const SizedBox(width: 12),
               ] else ...[
-                const Icon(
+                Icon(
                   Icons.search_rounded,
                   color: AppColors.primaryLight,
                   size: 24,
@@ -125,7 +125,7 @@ class SubscriptionServicePicker extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: AppColors.primaryLight,
               ),
@@ -255,14 +255,16 @@ class _ServicePickerSheetState extends State<_ServicePickerSheet> {
                       _category = category;
                       _addingCustom = false;
                     }),
-                    selectedColor: AppColors.primary.withValues(alpha: .32),
+                    selectedColor: AppColors.primaryLight.withValues(
+                      alpha: .32,
+                    ),
                     backgroundColor: AppColors.surfaceSolid,
                     labelStyle: TextStyle(
                       color: selected ? AppColors.lavender : AppColors.muted,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                     side: BorderSide(
-                      color: AppColors.primary.withValues(
+                      color: AppColors.primaryLight.withValues(
                         alpha: selected ? .85 : .35,
                       ),
                     ),
@@ -419,7 +421,7 @@ class _ServiceTile extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Icon(
+              Icon(
                 Icons.check_circle_rounded,
                 color: AppColors.primaryLight,
                 size: 18,

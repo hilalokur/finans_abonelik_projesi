@@ -46,7 +46,7 @@ class ReportExportService {
     final csv =
         '\uFEFF${rows.map((row) => row.map(_escapeCsv).join(',')).join('\r\n')}';
     return await FilePicker.saveFile(
-          fileName: 'subtrack-report.csv',
+          fileName: 'abonelik-finans-raporu.csv',
           mimeType: 'text/csv',
           bytes: Uint8List.fromList(utf8.encode(csv)),
         ) !=
@@ -64,7 +64,7 @@ class ReportExportService {
     final sorted = [...subscriptions]
       ..sort((a, b) => b.amount.compareTo(a.amount));
     final lines = <String>[
-      'SUBTRACK Subscription Report',
+      'Abonelik ve Finans Takip Sistemi - Abonelik Raporu',
       ratesMissing
           ? 'Monthly estimated total: unavailable (missing rate)'
           : 'Monthly estimated total: ${monthlyTotal.toStringAsFixed(2)} $currency',
@@ -76,7 +76,7 @@ class ReportExportService {
         '${item.name} | ${item.categoryName} | ${item.amount.toStringAsFixed(2)} | ${item.currency} | ${_convert(SubscriptionService.instance.monthlyEquivalent(item), item.currency, currency)?.toStringAsFixed(2) ?? 'Unavailable'}',
     ];
     final result = await FilePicker.saveFile(
-      fileName: 'subtrack-report.pdf',
+      fileName: 'abonelik-finans-raporu.pdf',
       mimeType: 'application/pdf',
       bytes: _makePdf(lines),
     );

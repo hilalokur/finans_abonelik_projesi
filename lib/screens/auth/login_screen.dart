@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../models/user_profile.dart';
 import '../../services/auth_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/app_background.dart';
 import 'register_screen.dart';
 import '../home/home_screen.dart';
@@ -23,14 +25,16 @@ class _LoginScreenState extends State<LoginScreen> {
       InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Color(0xFFB8B2CC)),
-        prefixIcon: Icon(icon, color: Color(0xFFC4B5FD)),
+        prefixIcon: Icon(icon, color: AppColors.primaryLight),
         suffixIcon: suffix,
         filled: true,
         fillColor: const Color(0xF217102B),
         contentPadding: const EdgeInsets.symmetric(vertical: 20),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: Color(0x99C4B5FD)),
+          borderSide: BorderSide(
+            color: AppColors.primaryLight.withValues(alpha: .6),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -76,29 +80,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _loginWithGoogle() async {
-    setState(() => _loading = true);
-
-    try {
-      final user = await AppAuthService.signInWithGoogle();
-      if (!mounted) return;
-
-      if (user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => HomeScreen(user: user)),
-        );
-      }
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.toString())));
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
-    }
+  void _continueAsGuest() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => HomeScreen(user: UserProfile.empty())),
+    );
   }
 
   Future<void> _resetPassword() async {
@@ -161,11 +147,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ).createShader(bounds),
                       child: const Text(
-                        'SUBTRACK',
+                        'Abonelik ve Finans Takip Sistemi',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 34,
+                          fontSize: 27,
+                          height: 1.2,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: 2.8,
+                          letterSpacing: 1.2,
                           color: Colors.white,
                           shadows: [
                             Shadow(color: Color(0xFFC4B5FD), blurRadius: 16),
@@ -176,7 +164,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Tüm aboneliklerin tek bir yerde',
+                      'Tüm aboneliklerin ve düzenli giderlerin tek bir yerde.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Color(0xFFB8B2CC)),
                     ),
                     const SizedBox(height: 28),
@@ -261,9 +250,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       width: double.infinity,
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
+                                        gradient: LinearGradient(
                                           colors: [
-                                            Color(0xFFC4B5FD),
+                                            AppColors.primaryLight,
                                             Color(0xFF8B5CF6),
                                           ],
                                         ),
@@ -307,10 +296,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
-                              onPressed: _loading ? null : _loginWithGoogle,
+                              onPressed: _loading ? null : _continueAsGuest,
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                  color: Color(0x99C4B5FD),
+                                side: BorderSide(
+                                  color: AppColors.primaryLight.withValues(
+                                    alpha: .6,
+                                  ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -319,15 +310,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(36),
                                 ),
                               ),
-                              icon: const SizedBox(
-                                width: 26,
-                                height: 26,
-                                child: CustomPaint(
-                                  painter: _GoogleLogoPainter(),
-                                ),
+                              icon: Icon(
+                                Icons.person_outline_rounded,
+                                color: AppColors.primaryLight,
                               ),
                               label: const Text(
-                                'Google ile giriş',
+                                'Misafir Olarak Devam Et',
                                 style: TextStyle(
                                   color: Color(0xFFFFFFFF),
                                   fontWeight: FontWeight.w600,
@@ -374,46 +362,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
-
-class _GoogleLogoPainter extends CustomPainter {
-  const _GoogleLogoPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(2, 2, size.width - 4, size.height - 4);
-    const colors = [
-      Color(0xFF8B5CF6),
-      Color(0xFFC4B5FD),
-      Color(0xFFE9D5FF),
-      Color(0xFFFFFFFF),
-    ];
-    for (var i = 0; i < 4; i++) {
-      final paint = Paint()
-        ..color = colors[i]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 5
-        ..strokeCap = StrokeCap.butt;
-      canvas.drawArc(
-        rect,
-        (-45 + i * 90) * 3.141592653589793 / 180,
-        1.28,
-        false,
-        paint,
-      );
-    }
-    final blue = Paint()
-      ..color = colors.first
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.butt;
-    canvas.drawLine(
-      Offset(size.width * .52, size.height * .5),
-      Offset(size.width - 2, size.height * .5),
-      blue,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

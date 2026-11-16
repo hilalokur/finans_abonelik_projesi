@@ -158,10 +158,12 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                         label: Text(_filterLabel(filter)),
                         selected: selected,
                         onSelected: (_) => setState(() => _filter = filter),
-                        selectedColor: AppColors.primary.withValues(alpha: .3),
+                        selectedColor: AppColors.primaryLight.withValues(
+                          alpha: .3,
+                        ),
                         backgroundColor: AppColors.surfaceSolid,
                         side: BorderSide(
-                          color: AppColors.primary.withValues(
+                          color: AppColors.primaryLight.withValues(
                             alpha: selected ? .8 : .35,
                           ),
                         ),
@@ -279,7 +281,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                     IconButton(
                       visualDensity: VisualDensity.compact,
                       onPressed: () => _editAmount(item),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.edit_outlined,
                         color: AppColors.primaryLight,
                         size: 20,

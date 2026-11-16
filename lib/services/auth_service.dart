@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/user_profile.dart';
 
 class AppAuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   static bool _firebaseReady = false;
 
   static Future<void> ensureInitialized() async {
@@ -18,7 +16,6 @@ class AppAuthService {
 
     try {
       await Firebase.initializeApp();
-      await _googleSignIn.initialize();
       _firebaseReady = true;
     } catch (_) {
       _firebaseReady = false;
@@ -107,48 +104,6 @@ class AppAuthService {
     }
   }
 
-  static Future<UserProfile?> signInWithGoogle() async {
-    await ensureInitialized();
-
-    if (!_firebaseReady) {
-      return const UserProfile(
-        fullName: 'Google Kullanıcısı',
-        email: 'google.user@subtrack.app',
-      );
-    }
-
-    try {
-      final googleUser = await _googleSignIn.authenticate();
-
-      final googleAuth = googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-
-      final result = await _auth.signInWithCredential(credential);
-      final user = result.user;
-
-      if (user != null) {
-        await _firestore.collection('users').doc(user.uid).set({
-          'fullName':
-              user.displayName ??
-              googleUser.displayName ??
-              'Google Kullanıcısı',
-          'email': user.email ?? googleUser.email,
-          'createdAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
-
-      return UserProfile(
-        fullName:
-            user?.displayName ?? googleUser.displayName ?? 'Google Kullanıcısı',
-        email: user?.email ?? googleUser.email,
-      );
-    } on Exception {
-      rethrow;
-    }
-  }
-
   static Future<void> sendPasswordResetEmail(String email) async {
     await ensureInitialized();
     if (!_firebaseReady) {
@@ -162,7 +117,6 @@ class AppAuthService {
   static Future<void> signOut() async {
     await ensureInitialized();
     if (!_firebaseReady) return;
-    await _googleSignIn.signOut();
     await _auth.signOut();
   }
 }

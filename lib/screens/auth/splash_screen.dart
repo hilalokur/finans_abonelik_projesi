@@ -72,58 +72,66 @@ class _SplashScreenState extends State<SplashScreen>
           opacity: _opacity,
           child: ScaleTransition(
             scale: _scale,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 126,
-                  height: 126,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: AppColors.primaryLight.withValues(alpha: .7),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: .42),
-                        blurRadius: 34,
-                        spreadRadius: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 126,
+                    height: 126,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: AppColors.primaryLight.withValues(alpha: .7),
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: .42),
+                          blurRadius: 34,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(17),
+                    child: Image.asset(
+                      'assets/icons/monitor (5).png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  padding: const EdgeInsets.all(17),
-                  child: Image.asset(
-                    'assets/icons/monitor (5).png',
-                    fit: BoxFit.contain,
+                  const SizedBox(height: 22),
+                  const Text(
+                    'Abonelik ve Finans Takip Sistemi',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      height: 1.2,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: AppColors.lavender,
+                      shadows: [
+                        Shadow(color: AppColors.primary, blurRadius: 20),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 22),
-                const Text(
-                  'SUBTRACK',
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2.2,
-                    color: AppColors.lavender,
-                    shadows: [Shadow(color: AppColors.primary, blurRadius: 20)],
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Tüm aboneliklerin ve düzenli giderlerin tek bir yerde.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.muted, fontSize: 15),
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Tüm aboneliklerin tek bir yerde',
-                  style: TextStyle(color: AppColors.muted, fontSize: 15),
-                ),
-                const SizedBox(height: 32),
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.primaryLight,
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primaryLight,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

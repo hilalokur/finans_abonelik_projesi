@@ -58,7 +58,7 @@ class AppBottomNavigation extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: selected
-                          ? AppColors.primary.withValues(alpha: .18)
+                          ? AppColors.primaryLight.withValues(alpha: .16)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(17),
                     ),

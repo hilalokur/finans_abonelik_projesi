@@ -130,10 +130,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     label: Text(_periodLabel(period)),
                     selected: selected,
                     onSelected: (_) => setState(() => _period = period),
-                    selectedColor: AppColors.primary.withValues(alpha: .32),
+                    selectedColor: AppColors.primaryLight.withValues(
+                      alpha: .32,
+                    ),
                     backgroundColor: AppColors.surfaceSolid,
                     side: BorderSide(
-                      color: AppColors.primary.withValues(
+                      color: AppColors.primaryLight.withValues(
                         alpha: selected ? .8 : .35,
                       ),
                     ),
@@ -206,7 +208,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 padding: const EdgeInsets.all(18),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.workspace_premium_outlined,
                       color: AppColors.primaryLight,
                     ),
@@ -236,7 +238,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 AppCard(
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.savings_outlined,
                         color: AppColors.primaryLight,
                       ),
@@ -447,7 +449,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         ),
                         Text(
                           '${_periodAmount(item, currency).toStringAsFixed(2)} $currency',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primaryLight,
                             fontWeight: FontWeight.w700,
                           ),
@@ -593,7 +595,7 @@ class _Metric extends StatelessWidget {
   );
 }
 
-const _chartColors = [
+List<Color> get _chartColors => [
   AppColors.primary,
   AppColors.primaryLight,
   AppColors.lavender,

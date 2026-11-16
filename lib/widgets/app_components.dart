@@ -30,7 +30,9 @@ class AppCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(
           radius ?? AppPreferences.instance.cornerRadius,
         ),
-        border: Border.all(color: AppColors.primary.withValues(alpha: .40)),
+        border: Border.all(
+          color: AppColors.primaryLight.withValues(alpha: .38),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: .10),
@@ -126,7 +128,7 @@ class AppSecondaryButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.lavender,
-        side: const BorderSide(color: Color(0xAA8B5CF6)),
+        side: BorderSide(color: AppColors.primaryLight.withValues(alpha: .6)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       ),
       child: child,
@@ -152,7 +154,7 @@ class AppGradientFab extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.primaryLight, AppColors.primary],
         ),
         boxShadow: [
@@ -291,7 +293,7 @@ class AppLoadingIndicator extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const SizedBox(
+      SizedBox(
         width: 24,
         height: 24,
         child: CircularProgressIndicator(

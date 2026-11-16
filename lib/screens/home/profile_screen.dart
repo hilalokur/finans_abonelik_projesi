@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   width: 60,
                   height: 60,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                     ),
@@ -96,7 +96,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => _showInfo(
               context,
               'Yardım ve destek',
-              'Destek için support@subtrack.app adresine ulaşabilirsin.',
+              'Destek için uygulama yöneticisiyle iletişime geçebilirsin.',
             ),
           ),
           const SizedBox(height: 8),

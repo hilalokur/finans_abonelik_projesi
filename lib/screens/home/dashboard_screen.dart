@@ -113,10 +113,10 @@ class DashboardScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'SUBTRACK',
+                              'Abonelik ve Finans Takip Sistemi',
                               style: TextStyle(
                                 color: AppColors.lavender,
-                                letterSpacing: 1.8,
+                                letterSpacing: 1.0,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
@@ -224,7 +224,7 @@ class _MonthlySummary extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(
-      gradient: const LinearGradient(
+      gradient: LinearGradient(
         colors: [AppColors.primary, AppColors.primaryLight],
       ),
       borderRadius: BorderRadius.circular(AppPreferences.instance.cornerRadius),

@@ -324,16 +324,30 @@ class AppearanceCustomizationScreen extends StatelessWidget {
               children: [
                 const _Heading('Arka plan'),
                 AppCard(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (final entry in backgrounds)
-                        ChoiceChip(
-                          selected: prefs.background == entry.$1,
-                          label: Text(entry.$2),
-                          onSelected: (_) => prefs.setBackground(entry.$1),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final entry in backgrounds)
+                            ChoiceChip(
+                              selected: entry.$1 == 'purpleGalaxy',
+                              label: Text(entry.$2),
+                              onSelected: null,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Arka plan seçenekleri şimdilik kullanılamıyor. '
+                        'Mor galaksi arka planı sabit olarak uygulanır.',
+                        style: TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12.5,
                         ),
+                      ),
                     ],
                   ),
                 ),

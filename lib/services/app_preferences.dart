@@ -1,12 +1,23 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppPreferences extends ChangeNotifier {
   AppPreferences._();
 
   static final AppPreferences instance = AppPreferences._();
+
+  /// Seçilebilir vurgu renkleri. Varsayılan: lavanta.
+  static const accentColors = <String, Color>{
+    'lavender': Color(0xFFC4B5FD),
+    'violet': Color(0xFFA78BFA),
+    'pinkLavender': Color(0xFFE9D5FF),
+    'silver': Color(0xFFD1D5DB),
+  };
+  static const _defaultAccent = 'lavender';
+  static const _lastAccentKey = 'subtrack.lastAccent';
   static const dashboardKeys = <String>[
     'monthly',
     'yearly',
@@ -59,6 +70,8 @@ class AppPreferences extends ChangeNotifier {
   int get reminderDays => _reminderDays;
   String get background => _background;
   String get accent => _accent;
+  Color get accentColor =>
+      accentColors[_accent] ?? accentColors[_defaultAccent]!;
   double get cornerRadius => _cornerRadius;
   bool get compactCards => _compactCards;
   bool get animations => _animations;
@@ -67,6 +80,19 @@ class AppPreferences extends ChangeNotifier {
   bool dashboardIsVisible(String key) => _dashboardVisible[key] ?? true;
   bool get loaded => _loaded;
   String get userKey => _userKey;
+
+  /// Uygulama açılışında (giriş öncesi ekranlar dahil) son seçilen vurgu
+  /// rengini yükler.
+  Future<void> loadLastAccent() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _accent = _validAccent(prefs.getString(_lastAccentKey));
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  String _validAccent(String? value) =>
+      accentColors.containsKey(value) ? value! : _defaultAccent;
 
   Future<void> initializeForUser(String identifier) async {
     _userKey = identifier.trim().toLowerCase().isEmpty
@@ -89,7 +115,7 @@ class AppPreferences extends ChangeNotifier {
         _notificationTime = _string(map, 'notificationTime', '09:00');
         _reminderDays = map['reminderDays'] as int? ?? 3;
         _background = _string(map, 'background', 'purpleGalaxy');
-        _accent = _string(map, 'accent', 'lavender');
+        _accent = _validAccent(map['accent'] as String?);
         _cornerRadius = (map['cornerRadius'] as num?)?.toDouble() ?? 22;
         _compactCards = map['compactCards'] as bool? ?? false;
         _animations = map['animations'] as bool? ?? true;
@@ -110,6 +136,7 @@ class AppPreferences extends ChangeNotifier {
     }
     _loaded = true;
     notifyListeners();
+    await prefs.setString(_lastAccentKey, _accent);
   }
 
   String get _storageKey => 'subtrack.preferences.$_userKey';
@@ -149,6 +176,7 @@ class AppPreferences extends ChangeNotifier {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastAccentKey, _accent);
     await prefs.setString(
       _storageKey,
       jsonEncode({
@@ -228,7 +256,7 @@ class AppPreferences extends ChangeNotifier {
   }
 
   void setAccent(String value) {
-    _accent = value;
+    _accent = _validAccent(value);
     _changed();
   }
 

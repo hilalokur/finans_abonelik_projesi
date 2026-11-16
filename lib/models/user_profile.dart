@@ -10,5 +10,5 @@
   });
 
   factory UserProfile.empty() =>
-      const UserProfile(fullName: 'Demo User', email: 'user@subtrack.app');
+      const UserProfile(fullName: 'Demo Kullanıcı', email: 'demo@ornek.com');
 }

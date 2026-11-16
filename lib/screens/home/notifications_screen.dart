@@ -105,7 +105,7 @@ class NotificationsScreen extends StatelessWidget {
                                   const SizedBox(height: 6),
                                   Text(
                                     _dateTime(item.createdAt),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppColors.primaryLight,
                                       fontSize: 11,
                                     ),
@@ -114,7 +114,7 @@ class NotificationsScreen extends StatelessWidget {
                               ),
                             ),
                             if (!item.isRead)
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(left: 8),
                                 child: CircleAvatar(
                                   radius: 4,

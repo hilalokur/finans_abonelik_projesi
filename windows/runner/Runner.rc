@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.finansasistani" "\0"
-            VALUE "FileDescription", "finans_abonelik_projesi" "\0"
+            VALUE "FileDescription", "Abonelik ve Finans Takip Sistemi" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "finans_abonelik_projesi" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.finansasistani. All rights reserved." "\0"
             VALUE "OriginalFilename", "finans_abonelik_projesi.exe" "\0"
-            VALUE "ProductName", "finans_abonelik_projesi" "\0"
+            VALUE "ProductName", "Abonelik ve Finans Takip Sistemi" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
